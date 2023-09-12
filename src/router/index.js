@@ -12,4 +12,6 @@ const router = createRouter({
         { path: '/',        redirect: '/home' },
         { path: '/about',   component: AboutComponent }
     ]
-})
+});
+
+export default router;

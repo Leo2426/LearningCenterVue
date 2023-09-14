@@ -5,7 +5,8 @@
       <pv-toolbar class="mb-4">
         <template #start>
           <pv-button class="mr-2" icon="pi pi-plus" label="New" severity="success" @click="openNew"/>
-          <pv-button :disabled="!selectedTutorials || !selectedTutorials.length" icon="pi pi-trash" label="Delete" severity="danger" @click="confirmDeleteSelected"/>
+          <pv-button :disabled="!selectedTutorials || !selectedTutorials.length" icon="pi pi-trash" label="Delete"
+                     severity="danger" @click="confirmDeleteSelected"/>
         </template>
         <template #end>
           <pv-button icon="pi pi-download" label="Export" severity="help" @click="exportToCsv($event)"/>
@@ -44,16 +45,19 @@
         <pv-column :exportable="false" style="min-width: 8rem">
           <template #body="slotProps">
             <pv-button class="mr-2" icon="pi pi-pencil" outlined rounded @click="editTutorial(slotProps.data)"/>
-            <pv-button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteTutorial(slotProps.data)"/>
+            <pv-button icon="pi pi-trash" outlined rounded severity="danger"
+                       @click="confirmDeleteTutorial(slotProps.data)"/>
           </template>
         </pv-column>
       </pv-data-table>
 
       <!-- Add/Edit Tutorial Dialog -->
-      <pv-dialog v-model:visible="tutorialDialog" :modal="true" :style="{width: '450px'}" class="p-fluid" header="Tutorial Information">
+      <pv-dialog v-model:visible="tutorialDialog" :modal="true" :style="{width: '450px'}" class="p-fluid"
+                 header="Tutorial Information">
         <div class="field mt-3">
           <span class="p-float-label">
-            <pv-input-text v-model.trim="tutorial.title" :class="{ 'p-invalid': submitted && !tutorial.title }" autofocus required="true" type="text"/>
+            <pv-input-text v-model.trim="tutorial.title" :class="{ 'p-invalid': submitted && !tutorial.title }"
+                           autofocus required="true" type="text"/>
             <label for="title">Title</label>
             <small v-if="submitted && !tutorial.title" class="p-error">Title is required</small>
           </span>
@@ -65,7 +69,8 @@
           </span>
         </div>
         <div class="field">
-          <pv-dropdown id="published" v-model="tutorial.status" :options="statuses" optionLabel="label" placeholder="Select and Status">
+          <pv-dropdown id="published" v-model="tutorial.status" :options="statuses" optionLabel="label"
+                       placeholder="Select and Status">
             <template #value="slotProps">
               <div v-if="slotProps.value && slotProps.value.value">
                 <pv-tag :severity="getStatusLabel(slotProps.value.label)" :value="slotProps.value.value"/>
@@ -82,30 +87,34 @@
           <pv-button :label="'Save'.toUpperCase()" class="p-button-text" icon="pi pi-check" @click="saveTutorial"/>
         </template>
       </pv-dialog>
+
+      <!-- Delete Tutorials Confirmation Dialog -->
+      <pv-dialog v-model:visible="deleteTutorialDialog" :modal="true" :style="{width: '450px'}" header="Confirm">
+        <div class="confirmation-content">
+          <i class="pi pi-exclamation-triangle p-mr-3" style="font-size: 2rem"/>
+          <span v-if="tutorial">Are you sure you want to delete <b>{{ tutorial.title }}</b></span>
+        </div>
+        <template #footer>
+          <pv-button :label="'No'.toUpperCase()" class="p-button-text" icon="pi pi-times"
+                     @click="deleteTutorialDialog = false"/>
+          <pv-button :label="'Yes'.toUpperCase()" class="p-button-text" icon="pi pi-check" @click="deleteTutorial"/>
+        </template>
+      </pv-dialog>
+
+      <!-- Delete Selected Tutorials Confirmation Dialog -->
+      <pv-dialog v-model:visible="deleteTutorialsDialog" :modal="true" :style="{width: '450px'}" header="Confirm">
+        <div class="confirmation-content">
+          <i class="pi pi-exclamation-triangle p-mr-3" style="font-size: 2rem"/>
+          <span v-if="selectedTutorials">Are you sure you want to delete the selected tutorials?</span>
+        </div>
+        <template #footer>
+          <pv-button :label="'No'.toUpperCase()" class="p-button-text" icon="pi pi-times"
+                     @click="deleteTutorialsDialog = false"/>
+          <pv-button :label="'Yes'.toUpperCase()" class="p-button-text" icon="pi pi-check"
+                     @click="deleteSelectedTutorials"/>
+        </template>
+      </pv-dialog>
     </div>
-
-    <!-- Delete Tutorials Confirmation Dialog -->
-    <pv-dialog v-model:visible="deleteTutorialDialog" :modal="true" :style="{width: '450px'}" header="Confirm">
-      <div class="confirmation-content">
-        <i class="pi pi-exclamation-triangle p-mr-3" style="font-size: 2rem"/>
-        <span v-if="tutorial">Are you sure you want to delete <b>{{ tutorial.title }}</b></span>
-      </div>
-      <template #footer>
-        <pv-button :label="'No'.toUpperCase()" class="p-button-text" icon="pi pi-times" @click="deleteTutorialDialog = false"/>
-        <pv-button :label="'Yes'.toUpperCase()" class="p-button-text" icon="pi pi-check" @click="deleteTutorial"/>
-      </template>
-    </pv-dialog>
-
-    <!-- Delete Selected Tutorials Confirmation Dialog -->
-    <pv-dialog v-model:visible="deleteTutorialsDialog" :modal="true" :style="{width: '450px'}" header="Confirm">
-      <div class="confirmation-content">
-        <i class="pi pi-exclamation-triangle p-mr-3" style="font-size: 2rem"/>
-        <span v-if="selectedTutorials">Are you sure you want to delete the selected tutorials?</span>
-      </div>
-      <template #footer>
-        <pv-button :label="'No'.toUpperCase()" class="p-button-text" icon="pi pi-times" @click="deleteTutorialsDialog = false"/>
-        <pv-button :label="'Yes'.toUpperCase()" class="p-button-text" icon="pi pi-check" @click="deleteSelectedTutorials"/>
-      </template>
   </div>
 </template>
 
@@ -197,7 +206,7 @@ export default {
               .then((response) => {
                 console.log(response.data.id);
                 this.tutorials[this.findIndexById(response.data.id)] = this.getDisplayableTutorial(response.data);
-                this.$toast.add({ severity: 'success', summary: 'Success', detail: 'Tutorial Updated', life: 3000 });
+                this.$toast.add({severity: 'success', summary: 'Success', detail: 'Tutorial Updated', life: 3000});
                 console.log(response);
               });
         } else {
@@ -209,7 +218,7 @@ export default {
                 console.log(response.data.id);
                 this.tutorial = this.getDisplayableTutorial(response.data);
                 this.tutorials.push(this.tutorial);
-                this.$toast.add({ severity: 'success', summary: 'Success', detail: 'Tutorial Created', life: 3000 });
+                this.$toast.add({severity: 'success', summary: 'Success', detail: 'Tutorial Created', life: 3000});
                 console.log(response);
               });
         }
@@ -230,10 +239,10 @@ export default {
     deleteTutorial() {
       this.tutorialsService.delete(this.tutorial.id)
           .then((response) => {
-            this.tutorials = this.tutorials.filter( (t) => t.id !== this.tutorial.id);
+            this.tutorials = this.tutorials.filter((t) => t.id !== this.tutorial.id);
             this.deleteTutorialDialog = false;
             this.tutorial = {};
-            this.$toast.add({ severity: 'success', summary: 'Success', detail: 'Tutorial Deleted', life: 3000 });
+            this.$toast.add({severity: 'success', summary: 'Success', detail: 'Tutorial Deleted', life: 3000});
             console.log(response);
           });
     },
@@ -260,29 +269,29 @@ export default {
 </script>
 
 <style scoped>
-  .table-header {
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.confirmation-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media screen and (max-width: 960px) {
+  :deep(.p-toolbar) {
+    flex-wrap: wrap;
+  }
+}
+
+@media (min-width: 1024px) {
+  .tutorials {
+    min-height: 100vh;
     display: flex;
     align-items: center;
-    justify-content: space-between;
   }
-
-  .confirmation-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  @media screen and (max-width: 960px) {
-    :deep(.p-toolbar) {
-      flex-wrap: wrap;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .tutorials {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-    }
-  }
+}
 </style>

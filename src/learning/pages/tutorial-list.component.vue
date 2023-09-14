@@ -1,5 +1,112 @@
 <template>
+  <div class="tutorials">
+    <div class="card">
+      <!-- Tutorials Toolbar Section -->
+      <pv-toolbar class="mb-4">
+        <template #start>
+          <pv-button class="mr-2" icon="pi pi-plus" label="New" severity="success" @click="openNew"/>
+          <pv-button :disabled="!selectedTutorials || !selectedTutorials.length" icon="pi pi-trash" label="Delete" severity="danger" @click="confirmDeleteSelected"/>
+        </template>
+        <template #end>
+          <pv-button icon="pi pi-download" label="Export" severity="help" @click="exportToCsv($event)"/>
+        </template>
+      </pv-toolbar>
 
+      <!-- Data Table Section -->
+      <pv-data-table ref="dt" v-model:selection="selectedTutorials"
+                     :filters="filters"
+                     :paginator="true"
+                     :rows="10"
+                     :rowsPerPageOptions="[5, 10, 25]"
+                     :value="tutorials"
+                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} tutorials"
+                     dataKey="id"
+                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                     responsiveLayout="scroll">
+        <template #header>
+          <div class="table-header gap-2 align-items-center justify-content-between">
+            <h4 class="m-0">Manage Tutorials</h4>
+            <span class="p-input-icon-left">
+              <i class="pi- pi-search"/>
+              <pv-input-text v-model="filters['global'].value" placeholder="Search..."/>
+            </span>
+          </div>
+        </template>
+        <pv-column :exportable="false" selectionMode="multiple" style="width: 3rem"/>
+        <pv-column :sortable="true" field="id" header="Id" style="min-width: 12rem"/>
+        <pv-column :sortable="true" field="title" header="Title" style="min-width: 16rem"/>
+        <pv-column :sortable="true" field="description" header="Description" style="min-width: 16rem"/>
+        <pv-column :sortable="true" field="status" header="Status" style="min-width: 12rem">
+          <template #body="slotProps">
+            <pv-tag :severity="getStatusLabel(slotProps.data.status)" :value="slotProps.data.status"/>
+          </template>
+        </pv-column>
+        <pv-column :exportable="false" style="min-width: 8rem">
+          <template #body="slotProps">
+            <pv-button class="mr-2" icon="pi pi-pencil" outlined rounded @click="editTutorial(slotProps.data)"/>
+            <pv-button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteTutorial(slotProps.data)"/>
+          </template>
+        </pv-column>
+      </pv-data-table>
+
+      <!-- Add/Edit Tutorial Dialog -->
+      <pv-dialog v-model:visible="tutorialDialog" :modal="true" :style="{width: '450px'}" class="p-fluid" header="Tutorial Information">
+        <div class="field mt-3">
+          <span class="p-float-label">
+            <pv-input-text v-model.trim="tutorial.title" :class="{ 'p-invalid': submitted && !tutorial.title }" autofocus required="true" type="text"/>
+            <label for="title">Title</label>
+            <small v-if="submitted && !tutorial.title" class="p-error">Title is required</small>
+          </span>
+        </div>
+        <div class="field">
+          <span class="p-float-label">
+            <pv-input-text v-model.trim="tutorial.description" cols="20" required="false" rows="2" type="text"/>
+            <label for="description">Description</label>
+          </span>
+        </div>
+        <div class="field">
+          <pv-dropdown id="published" v-model="tutorial.status" :options="statuses" optionLabel="label" placeholder="Select and Status">
+            <template #value="slotProps">
+              <div v-if="slotProps.value && slotProps.value.value">
+                <pv-tag :severity="getStatusLabel(slotProps.value.label)" :value="slotProps.value.value"/>
+              </div>
+              <div v-else-if="slotProps.value && !slotProps.value.value">
+                <pv-tag :severity="getStatusLabel(slotProps.value)" :value="slotProps.value"/>
+              </div>
+              <span v-else>{{ slotProps.placeholder }}</span>
+            </template>
+          </pv-dropdown>
+        </div>
+        <template #footer>
+          <pv-button :label="'Cancel'.toUpperCase()" class="p-button-text" icon="pi pi-times" @click="hideDialog"/>
+          <pv-button :label="'Save'.toUpperCase()" class="p-button-text" icon="pi pi-check" @click="saveTutorial"/>
+        </template>
+      </pv-dialog>
+    </div>
+
+    <!-- Delete Tutorials Confirmation Dialog -->
+    <pv-dialog v-model:visible="deleteTutorialDialog" :modal="true" :style="{width: '450px'}" header="Confirm">
+      <div class="confirmation-content">
+        <i class="pi pi-exclamation-triangle p-mr-3" style="font-size: 2rem"/>
+        <span v-if="tutorial">Are you sure you want to delete <b>{{ tutorial.title }}</b></span>
+      </div>
+      <template #footer>
+        <pv-button :label="'No'.toUpperCase()" class="p-button-text" icon="pi pi-times" @click="deleteTutorialDialog = false"/>
+        <pv-button :label="'Yes'.toUpperCase()" class="p-button-text" icon="pi pi-check" @click="deleteTutorial"/>
+      </template>
+    </pv-dialog>
+
+    <!-- Delete Selected Tutorials Confirmation Dialog -->
+    <pv-dialog v-model:visible="deleteTutorialsDialog" :modal="true" :style="{width: '450px'}" header="Confirm">
+      <div class="confirmation-content">
+        <i class="pi pi-exclamation-triangle p-mr-3" style="font-size: 2rem"/>
+        <span v-if="selectedTutorials">Are you sure you want to delete the selected tutorials?</span>
+      </div>
+      <template #footer>
+        <pv-button :label="'No'.toUpperCase()" class="p-button-text" icon="pi pi-times" @click="deleteTutorialsDialog = false"/>
+        <pv-button :label="'Yes'.toUpperCase()" class="p-button-text" icon="pi pi-check" @click="deleteSelectedTutorials"/>
+      </template>
+  </div>
 </template>
 
 <script>

@@ -149,11 +149,33 @@ export default {
 
   }
 
-
-
 }
 </script>
 
 <style scoped>
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 
+  .confirmation-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media screen and (max-width: 960px) {
+    :deep(.p-toolbar) {
+      flex-wrap: wrap;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .tutorials {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+    }
+  }
 </style>

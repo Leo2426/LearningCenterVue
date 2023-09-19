@@ -51,42 +51,15 @@
         </pv-column>
       </pv-data-table>
 
+
+
       <!-- Add/Edit Tutorial Dialog -->
-      <pv-dialog v-model:visible="tutorialDialog" :modal="true" :style="{width: '450px'}" class="p-fluid"
-                 header="Tutorial Information">
-        <div class="field mt-3">
-          <span class="p-float-label">
-            <pv-input-text v-model.trim="tutorial.title" :class="{ 'p-invalid': submitted && !tutorial.title }"
-                           autofocus required="true" type="text"/>
-            <label for="title">Title</label>
-            <small v-if="submitted && !tutorial.title" class="p-error">Title is required</small>
-          </span>
-        </div>
-        <div class="field">
-          <span class="p-float-label">
-            <pv-input-text v-model.trim="tutorial.description" cols="20" required="false" rows="2" type="text"/>
-            <label for="description">Description</label>
-          </span>
-        </div>
-        <div class="field">
-          <pv-dropdown id="published" v-model="tutorial.status" :options="statuses" optionLabel="label"
-                       placeholder="Select and Status">
-            <template #value="slotProps">
-              <div v-if="slotProps.value && slotProps.value.value">
-                <pv-tag :severity="getStatusLabel(slotProps.value.label)" :value="slotProps.value.value"/>
-              </div>
-              <div v-else-if="slotProps.value && !slotProps.value.value">
-                <pv-tag :severity="getStatusLabel(slotProps.value)" :value="slotProps.value"/>
-              </div>
-              <span v-else>{{ slotProps.placeholder }}</span>
-            </template>
-          </pv-dropdown>
-        </div>
-        <template #footer>
-          <pv-button :label="'Cancel'.toUpperCase()" class="p-button-text" icon="pi pi-times" @click="hideDialog"/>
-          <pv-button :label="'Save'.toUpperCase()" class="p-button-text" icon="pi pi-check" @click="saveTutorial"/>
-        </template>
-      </pv-dialog>
+
+      <tutorial-item-add-or-edit-dialog :statuses="statuses" :tutorial="tutorial"
+          v-bind:visible="tutorialDialog"
+          v-on:cancel="onAddOrUpdateItemCancel" v-on:save="onSaveItem"/>
+
+
 
       <!-- Delete Tutorials Confirmation Dialog -->
       <pv-dialog v-model:visible="deleteTutorialDialog" :modal="true" :style="{width: '450px'}" header="Confirm">
@@ -121,9 +94,11 @@
 <script>
 import {TutorialsApiService} from "../services/tutorials-api.service.js";
 import {FilterMatchMode} from "primevue/api";
+import TutorialItemAddOrEditDialog from "../components/tutorial-item-add-or-edit-dialog.component.vue";
 
 export default {
   name: "tutorial-list",
+  components: {TutorialItemAddOrEditDialog},
   title: "Tutorials",
   data() {
     return {
@@ -186,7 +161,7 @@ export default {
       this.tutorialDialog = true;
     },
 
-    hideDialog() {
+    onAddOrUpdateItemCancel() {
       this.tutorialDialog = false;
       this.submitted = false;
     },
@@ -196,7 +171,7 @@ export default {
       return this.tutorials.findIndex((tutorial) => tutorial.id === id);
     },
 
-    saveTutorial() {
+    onSaveItem() {
       this.submitted = true;
       if (this.tutorial.title.trim()) {
         if (this.tutorial.id) {

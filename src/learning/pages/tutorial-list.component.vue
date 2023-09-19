@@ -254,11 +254,6 @@ export default {
   justify-content: space-between;
 }
 
-.confirmation-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 @media screen and (max-width: 960px) {
   :deep(.p-toolbar) {

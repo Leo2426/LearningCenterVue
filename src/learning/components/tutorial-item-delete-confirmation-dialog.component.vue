@@ -36,5 +36,10 @@ export default {
 
 
 <style scoped>
+.confirmation-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 </style>

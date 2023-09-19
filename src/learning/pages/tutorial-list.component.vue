@@ -52,7 +52,6 @@
       </pv-data-table>
 
 
-
       <!-- Add/Edit Tutorial Dialog -->
 
       <tutorial-item-add-or-edit-dialog :statuses="statuses" :tutorial="tutorial"
@@ -60,19 +59,11 @@
           v-on:cancel="onAddOrUpdateItemCancel" v-on:save="onSaveItem"/>
 
 
-
       <!-- Delete Tutorials Confirmation Dialog -->
-      <pv-dialog v-model:visible="deleteTutorialDialog" :modal="true" :style="{width: '450px'}" header="Confirm">
-        <div class="confirmation-content">
-          <i class="pi pi-exclamation-triangle p-mr-3" style="font-size: 2rem"/>
-          <span v-if="tutorial">Are you sure you want to delete <b>{{ tutorial.title }}</b></span>
-        </div>
-        <template #footer>
-          <pv-button :label="'No'.toUpperCase()" class="p-button-text" icon="pi pi-times"
-                     @click="deleteTutorialDialog = false"/>
-          <pv-button :label="'Yes'.toUpperCase()" class="p-button-text" icon="pi pi-check" @click="deleteTutorial"/>
-        </template>
-      </pv-dialog>
+      <tutorial-item-delete-confirmation-dialog
+          :item="tutorial" v-bind:visible="deleteTutorialDialog"
+          v-on:cancel="onDeleteItemCancel" v-on:confirm="onDeleteItemConfirm"/>
+
 
       <!-- Delete Selected Tutorials Confirmation Dialog -->
       <pv-dialog v-model:visible="deleteTutorialsDialog" :modal="true" :style="{width: '450px'}" header="Confirm">
@@ -95,10 +86,11 @@
 import {TutorialsApiService} from "../services/tutorials-api.service.js";
 import {FilterMatchMode} from "primevue/api";
 import TutorialItemAddOrEditDialog from "../components/tutorial-item-add-or-edit-dialog.component.vue";
+import TutorialItemDeleteConfirmationDialog from "../components/tutorial-item-delete-confirmation-dialog.component.vue";
 
 export default {
   name: "tutorial-list",
-  components: {TutorialItemAddOrEditDialog},
+  components: {TutorialItemDeleteConfirmationDialog, TutorialItemAddOrEditDialog},
   title: "Tutorials",
   data() {
     return {
@@ -211,6 +203,15 @@ export default {
       this.tutorial = tutorial;
       this.deleteTutorialDialog = true;
     },
+    onDeleteItemCancel() {
+      this.deleteTutorialDialog = false;
+    },
+
+    onDeleteItemConfirm() {
+      this.deleteTutorial();
+    },
+
+
     deleteTutorial() {
       this.tutorialsService.delete(this.tutorial.id)
           .then((response) => {

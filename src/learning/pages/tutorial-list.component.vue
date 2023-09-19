@@ -79,12 +79,12 @@ import {TutorialsApiService} from "../services/tutorials-api.service.js";
 import {FilterMatchMode} from "primevue/api";
 import TutorialItemAddOrEditDialog from "../components/tutorial-item-add-or-edit-dialog.component.vue";
 import TutorialItemDeleteConfirmationDialog from "../components/tutorial-item-delete-confirmation-dialog.component.vue";
-import TutorialSubsetDeleteConfirmation from "../components/tutorial-subset-delete-confirmation-dialog.component.vue";
+import TutorialSubsetDeleteConfirmationDialog from "../components/tutorial-subset-delete-confirmation-dialog.component.vue";
 
 export default {
   name: "tutorial-list",
   components: {
-    TutorialSubsetDeleteConfirmation, TutorialItemDeleteConfirmationDialog, TutorialItemAddOrEditDialog},
+    TutorialItemDeleteConfirmationDialog, TutorialItemAddOrEditDialog, TutorialSubsetDeleteConfirmationDialog },
   title: "Tutorials",
   data() {
     return {

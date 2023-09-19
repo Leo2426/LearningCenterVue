@@ -66,18 +66,10 @@
 
 
       <!-- Delete Selected Tutorials Confirmation Dialog -->
-      <pv-dialog v-model:visible="deleteTutorialsDialog" :modal="true" :style="{width: '450px'}" header="Confirm">
-        <div class="confirmation-content">
-          <i class="pi pi-exclamation-triangle p-mr-3" style="font-size: 2rem"/>
-          <span v-if="selectedTutorials">Are you sure you want to delete the selected tutorials?</span>
-        </div>
-        <template #footer>
-          <pv-button :label="'No'.toUpperCase()" class="p-button-text" icon="pi pi-times"
-                     @click="deleteTutorialsDialog = false"/>
-          <pv-button :label="'Yes'.toUpperCase()" class="p-button-text" icon="pi pi-check"
-                     @click="deleteSelectedTutorials"/>
-        </template>
-      </pv-dialog>
+      <tutorial-subset-delete-confirmation-dialog
+          :items="selectedTutorials" v-bind:visible="deleteTutorialsDialog"
+          v-on:cancel="onDeleteSubsetCancel" v-on:confirm="onDeleteSubsetConfirm"/>
+
     </div>
   </div>
 </template>
@@ -87,10 +79,12 @@ import {TutorialsApiService} from "../services/tutorials-api.service.js";
 import {FilterMatchMode} from "primevue/api";
 import TutorialItemAddOrEditDialog from "../components/tutorial-item-add-or-edit-dialog.component.vue";
 import TutorialItemDeleteConfirmationDialog from "../components/tutorial-item-delete-confirmation-dialog.component.vue";
+import TutorialSubsetDeleteConfirmation from "../components/tutorial-subset-delete-confirmation-dialog.component.vue";
 
 export default {
   name: "tutorial-list",
-  components: {TutorialItemDeleteConfirmationDialog, TutorialItemAddOrEditDialog},
+  components: {
+    TutorialSubsetDeleteConfirmation, TutorialItemDeleteConfirmationDialog, TutorialItemAddOrEditDialog},
   title: "Tutorials",
   data() {
     return {
@@ -156,6 +150,15 @@ export default {
     onAddOrUpdateItemCancel() {
       this.tutorialDialog = false;
       this.submitted = false;
+    },
+
+
+    onDeleteSubsetCancel() {
+      this.deleteTutorialsDialog = false;
+    },
+
+    onDeleteSubsetConfirm() {
+      this.deleteSelectedTutorials();
     },
 
     findIndexById(id) {

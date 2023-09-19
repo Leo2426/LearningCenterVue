@@ -16,7 +16,7 @@
 
 <script>
 export default {
-  name: "tutorial-subset-delete-confirmation.dialog",
+  name: "tutorial-subset-delete-confirmation-dialog",
   props: {
     subset: Array,
     visible: Boolean,

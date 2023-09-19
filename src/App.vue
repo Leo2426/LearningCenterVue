@@ -14,6 +14,7 @@
     </pv-toolbar>
   </header>
   <pv-sidebar v-model:visible="drawer"/>
+  <router-view/>
 </template>
 
 <script>

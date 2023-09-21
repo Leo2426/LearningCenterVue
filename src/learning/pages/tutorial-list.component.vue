@@ -80,6 +80,7 @@ import {FilterMatchMode} from "primevue/api";
 import TutorialItemAddOrEditDialog from "../components/tutorial-item-add-or-edit-dialog.component.vue";
 import TutorialItemDeleteConfirmationDialog from "../components/tutorial-item-delete-confirmation-dialog.component.vue";
 import TutorialSubsetDeleteConfirmationDialog from "../components/tutorial-subset-delete-confirmation-dialog.component.vue";
+import {Tutorial} from "../model/tutorial.entity.js";
 
 export default {
   name: "tutorial-list",
@@ -109,7 +110,7 @@ export default {
     this.tutorialsService.getAll()
         .then(response => {
           this.tutorials = response.data;
-          this.tutorials.forEach((tutorial) => this.getDisplayableTutorial(tutorial));
+          this.tutorials = this.tutorials.map((tutorial) => { return Tutorial.toDisplayableTutorial(tutorial) });
           console.log(response.data);
         });
     console.log(this.tutorials);
@@ -129,6 +130,11 @@ export default {
           return null;
       }
     },
+
+    notifySuccessfulAction(message) {
+      this.$toast.add({severity: 'success', summary: 'Success', detail: message, life: 3000});
+    },
+
     getDisplayableTutorial(tutorial) {
       tutorial.status = tutorial.published ? this.statuses[0].label : this.statuses[1].label;
       return tutorial;
@@ -171,12 +177,12 @@ export default {
       if (this.tutorial.title.trim()) {
         if (this.tutorial.id) {
           console.log(this.tutorial);
-          this.tutorial = this.getStorableTutorial(this.tutorial);
+          this.tutorial = Tutorial.fromDisplayableTutorial(this.tutorial);
           this.tutorialsService.update(this.tutorial.id, this.tutorial)
               .then((response) => {
                 console.log(response.data.id);
                 this.tutorials[this.findIndexById(response.data.id)] = this.getDisplayableTutorial(response.data);
-                this.$toast.add({severity: 'success', summary: 'Success', detail: 'Tutorial Updated', life: 3000});
+                this.notifySuccessfulAction('Tutorial Updated');
                 console.log(response);
               });
         } else {
@@ -186,9 +192,9 @@ export default {
           this.tutorialsService.create(this.tutorial)
               .then((response) => {
                 console.log(response.data.id);
-                this.tutorial = this.getDisplayableTutorial(response.data);
+                this.tutorial = Tutorial.toDisplayableTutorial(response.data);
                 this.tutorials.push(this.tutorial);
-                this.$toast.add({severity: 'success', summary: 'Success', detail: 'Tutorial Created', life: 3000});
+                this.notifySuccessfulAction('Tutorial Created');
                 console.log(response);
               });
         }

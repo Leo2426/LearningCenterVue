@@ -4,7 +4,7 @@
       "id": 1,
       "title": "The Vue Tutorials",
       "description": "The best tips and tutorials for Vue.",
-      "published": false
+      "published": true
     },
     {
       "id": 2,
